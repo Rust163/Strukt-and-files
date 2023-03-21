@@ -1,144 +1,106 @@
-﻿#include <iostream>
+﻿//#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
 #include "windows.h"
 using namespace std;
 struct Library {
-    char title[20];
-    char author[20];
-    char publishing[20];
-    char genre[20];
-    void showBooks() {
-        cout << "Название книги: " << title <<
-            "\nАвтор книги: " << author <<
-            "\nИздательство книги: " << publishing <<
-            "\nЖанр книги: " << genre << endl;
-        cout << "\n--------------------------------------------------\n";
-    }
+    char title[50]{ 0 };
+    char author[50]{ 0 };
+    char publishing[50]{ 0 };
+    char genre[50]{ 0 };
+    
 };
 
-void outputBooks(Library book[], errno_t err) {
+void inputOfInformationAboutBooks(Library book[], const char* pathLib) {
     cout << "Вы собираетесь редактировать или перезаписывать файл, все данные будут удалены!!!" << endl;
     cout << "Введите КОД ДОСТУПА: ";
     int warning;
     cin >> warning;
     cout << endl;
-    FILE* out{};
-    if (warning == 1001) {
-        if (err == NULL) {
-            for (int i = 0; i < 2; i++) {
-                SetConsoleCP(1251);
-                cout << "Введите название книги: " << gets_s(book[i].title);
-                cin.get();
-                cout << "Введите автора книги: " << gets_s(book[i].author);
-                cin.get();
-                cout << "Введите издательство книги: " << gets_s(book[i].publishing);
-                cin.get();
-                cout << "Введите жанр книги: " << gets_s(book[i].genre);
-                cin.get();
-                fprintf(out, "%20s ", book[i].title);
-                fprintf(out, "%20s ", book[i].author);
-                fprintf(out, "%20s ", book[i].publishing);
-                fprintf(out, "%20s ", book[i].genre);
-                SetConsoleCP(866);
-                cout << "\n***********************************************\n";
-            }
-            fclose(out);
+    FILE* booksFileSave;
+    fopen_s(&booksFileSave, pathLib, "w");
+    if (warning == 1010) {
+        for (int i = 0; i < 2; i++) {
+            SetConsoleCP(1251);
+            cout << "Введите название книги: ";
+            cin >> ws;
+            gets_s(book[i].title, 50);
+            cout << "Введите имя автора: ";
+            cin >> ws;
+            gets_s(book[i].author, 50);
+            cout << "Введите название издательства: ";
+            cin >> ws;
+            gets_s(book[i].publishing, 50);
+            cout << "Введите жанр книги: ";
+            cin >> ws;
+            gets_s(book[i].genre, 50);
+            fprintf(booksFileSave, "%s\n", book[i].title);
+            fprintf(booksFileSave, "%s\n", book[i].author);
+            fprintf(booksFileSave, "%s\n", book[i].publishing);
+            fprintf(booksFileSave, "%s\n", book[i].genre);
+            cout << "\n***********************************************************\n";
+            SetConsoleCP(866);
         }
     }
     else {
-        cout << "Не верно указан КОД ДОСТУПА в доступе редакирования и записи отказано!!!";
+        cout << "Не верный код доступа! В редактировании отказано!";
+    }
+    fclose(booksFileSave);
+}
+
+void outputOfInformationAboutBooks(Library book[], const char* pathLib) {
+    FILE* booksUploadFile;
+    fopen_s(&booksUploadFile, pathLib, "r");
+    for (int i = 0; i < 2; i++) {
+        SetConsoleCP(1251);
+        fgets(book[i].title, 50, booksUploadFile);
+        fgets(book[i].author, 50, booksUploadFile);
+        fgets(book[i].publishing, 50, booksUploadFile);
+        fgets(book[i].genre, 50, booksUploadFile);
+        cout << "Название книги: " << book[i].title <<
+            "\nАвтор книги: " << book[i].author <<
+            "\nИздательство книги: " << book[i].publishing <<
+            "\nЖанр книги: " << book[i].genre << endl;
+        SetConsoleCP(866);
+        cout << "\n--------------------------------------------------\n";
     }
 }
 
-void inputBooks(Library book[], const char* pathLibrary) {
-    FILE* in;
-    errno_t err2 = fopen_s(&in, pathLibrary, "r");
-    if (err2 == NULL) {
-        for (int i = 0; i < 2; i++) {
-            fscanf_s(in, "%20s ", book[i].title, 21);
-            fscanf_s(in, "%20s ", book[i].author, 21);
-            fscanf_s(in, "%20s ", book[i].publishing, 21);
-            fscanf_s(in, "%20s ", book[i].genre, 21);
-        }
+void findBookByTitle() {
+    char findTitle;
+    for (int i = 0; i < 2; i++) {
+
     }
-    book->showBooks();
+}
+
+void findBookByAuthor() {
+
+}
+
+void findBookByGenre() {
+
+}
+
+void findBookByPublish() {
+
 }
 
 int main() {
     setlocale(LC_ALL, "RUS");
-    cout << "\n=====================================МЕНЮ==================================\n";
-    cout << "Выберите пункт меню для совершения действий со списком книг:" << endl;
-    cout << "1. Заполнить каталог или дополнить(если файл уже создан и заполнялся ранее)." << endl;
-    cout << "2. Вывести полный список книг." << endl;
-    int value = 0;
-    cin >> value;
-    FILE* out;
     Library book[10];
-    const char* pathLibrary = "books.txt";
-    errno_t err = fopen_s(&out, pathLibrary, "w");
+    const char* pathLib = "Books in library.txt";
+    cout << "\n==============================MENU===================================\n";
+    int value = 0;
+    cout << "\n1.) Заполнение каталога книг.(При выборе этого пункта вся предыдущая информация будет уничтоженна!!!)";
+    cout << "\n2.) Вывод каталога на экран.";
+    cout << "\nВыберите пункт меню для работы с файлом библиотеки: ";
+    cin >> value;
+    cout << endl;
+    
     if (value == 1) {
-        outputBooks(book, err);
+        inputOfInformationAboutBooks(book, pathLib);
     }
-    FILE* in{};
-    Library bookIn[10];
+   
     if (value == 2) {
-        inputBooks(book, pathLibrary);
+        outputOfInformationAboutBooks(book, pathLib);
     }
-
-
-
-
-    /*book[0]->title = "Оно";
-    book[0]->author = "Кинг Стивен";
-    book[0]->publishing = "Питер";
-    book[0]->genre = "ужасы";
-
-    book[1]->title = "Сияние";
-    book[1]->author = "Кинг Стивен";
-    book[1]->publishing = "Питер";
-    book[1]->genre = "ужасы";
-
-    book[2]->title = "Пролетая над гнездом кукушки";
-    book[2]->author = "Кизи Кен";
-    book[2]->publishing = "Питер";
-    book[2]->genre = "трагедия";
-
-    book[3]->title = "Война и мир";
-    book[3]->author = "Толстой Лев Николаевич";
-    book[3]->publishing = "АСТ";
-    book[3]->genre = "эпопея";
-
-    book[4]->title = "Анна Каренина";
-    book[4]->author = "Толстой Лев Николаевич";
-    book[4]->publishing = "АСТ";
-    book[4]->genre = "трагедия";
-
-    book[5]->title = "Хранители";
-    book[5]->author = "Мур Алан";
-    book[5]->publishing = "Азбука";
-    book[5]->genre = "графический роман";
-
-    book[6]->title = "Из ада";
-    book[6]->author = "Мур Алан";
-    book[6]->publishing = "Азбука";
-    book[6]->genre = "графический роман";
-
-    book[7]->title = "Бойцовский клуб";
-    book[7]->author = "Паланик Чак";
-    book[7]->publishing = "МИФ";
-    book[7]->genre = "роман";
-
-    book[8]->title = "Колыбельная";
-    book[8]->author = "Паланик Чак";
-    book[8]->publishing = "МИФ";
-    book[8]->genre = "роман";
-
-    book[9]->title = "Конан-варвар";
-    book[9]->author = "Говард Роберт Ирвин";
-    book[9]->publishing = "Слово";
-    book[9]->genre = "фентези";*/
-
-
-
-
-
 }
